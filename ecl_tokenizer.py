@@ -200,6 +200,10 @@ class EclCase:
         for mfile in self.missing_files:
             print("|XX", mfile)
 
+    def get_top_dir(self):
+        # Return the top-most common path of all files.
+        return os.path.commonpath(self.processed_files + self.missing_files)
+
 if __name__ == "__main__":
     print("Import me!")
 
