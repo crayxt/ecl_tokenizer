@@ -4,6 +4,7 @@
 
 import os
 import re
+from difflib import HtmlDiff
 
 sections = ("RUNSPEC", "GRID", "EDIT", "PROPS", "REGIONS", "SOLUTION", "SUMMARY", "SCHEDULE")
 
@@ -203,6 +204,18 @@ class EclCase:
     def get_top_dir(self):
         # Return the top-most common path of all files.
         return os.path.commonpath(self.processed_files + self.missing_files)
+
+    def compare_includes_html(self, other):
+        # Create file hightlighting differences.
+        # Useful for IPython.
+        # If needs to be saved, use following snippet:
+        #
+        # diff = case.compare_includes_html(other_case)
+        # with open("output.html", "w+") as file:
+        #     file.save(diff)
+        #
+        diff = HtmlDiff().make_file(self.processed_files, other.processed_files, self.data_file, other.data_file)
+        return diff
 
 if __name__ == "__main__":
     print("Import me!")
