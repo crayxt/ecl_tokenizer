@@ -24,6 +24,8 @@ class EclKwd:
         out       = []
         push_line = False
         line_buf  = []   # Corresponds to 1 data record.
+        if not self.value:
+            return out
         for line in self.value:
             line = line.strip()
             if line.endswith("/"):
@@ -132,6 +134,9 @@ class EclCase:
             buf.clear()
 
     def parse_include(self, ecl_kwd, verbose=False):
+        if not ecl_kwd.value:
+            print("ERR : The keyword supplied to parse_include does not have a value in it.")
+            return
         inc_file = ecl_kwd.value[0].replace("'", "").strip().strip("/").strip()
         included_file_name = os.path.abspath(os.path.join(os.path.dirname(self.data_file), inc_file)).strip()
         if included_file_name in self.processed_files:
