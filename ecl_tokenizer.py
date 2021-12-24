@@ -46,6 +46,15 @@ class EclKwd:
                 line_buf = []
         return out
 
+    def has_trailing_slash(self):
+        # All keywords with value and not being 'TITLE'.
+        if self.value and self.name != "TITLE":
+            for line in self.value:
+                if line.endswith("/"):
+                    return True
+            return False
+        return True
+
     def __eq__(self, other):
         return self.name == other.name and self.to_list() == other.to_list()
 
@@ -73,8 +82,14 @@ class EclCase:
                 title = self.get_kwds("TITLE")[0].value[0].strip()
         return '<EclCase: Title: `{0}` Keywords: {1} Includes: {2}, missing: {3}, File: "{4}">\n'.format(title, len(self.keywords), len(self.processed_files), len(self.missing_files), self.data_file)
 
+    def append_keyword(self, keyword):
+        if keyword.has_trailing_slash():
+            self.keywords.append(keyword)
+        else:
+            raise ValueError("HELLO HERE")
+
     def parse(self, in_file, cur_section="", verbose=False):
-        if self.skip_grdecl and in_file.toupper().endswith(".GRDECL"):
+        if self.skip_grdecl and in_file.upper().endswith(".GRDECL"):
             if verbose:
                 print("SKIP: Skipping grid files was requested!")
             return
@@ -111,7 +126,7 @@ class EclCase:
                 # Check for TITLE keyword data.
                 if last_kwd and last_kwd.name == "TITLE":
                     last_kwd.value = [line]
-                    self.keywords.append(last_kwd)
+                    self.append_keyword(last_kwd)
                     last_kwd = None
                     line = sr.readline()
                     continue
@@ -121,7 +136,7 @@ class EclCase:
                         cur_section = probe_kwd
                     if last_kwd:
                         last_kwd.value = buf.copy()
-                        self.keywords.append(last_kwd)
+                        self.append_keyword(last_kwd)
                         if last_kwd.name == "INCLUDE":
                             self.parse_include(last_kwd, verbose=verbose)
                         buf.clear()
@@ -135,7 +150,7 @@ class EclCase:
                 line = sr.readline()
         if last_kwd and last_kwd not in self.keywords:
             last_kwd.value = buf.copy()
-            self.keywords.append(last_kwd)
+            self.append_keyword(last_kwd)
             if last_kwd.name == "INCLUDE":
                 self.parse_include(last_kwd, verbose=verbose)
             buf.clear()
