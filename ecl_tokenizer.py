@@ -4,6 +4,7 @@
 
 import os
 import re
+from datetime import datetime
 from difflib import HtmlDiff
 
 sections = ("RUNSPEC", "GRID", "EDIT", "PROPS", "REGIONS", "SOLUTION", "SUMMARY", "SCHEDULE")
@@ -44,6 +45,12 @@ class EclKwd:
                 push_line = False
                 line_buf = []
         return out
+
+    def __eq__(self, other):
+        return self.name == other.name and self.to_list() == other.to_list()
+
+    def __hash__(self):
+        return hash((self.name, "".join(self.value)))
 
     def __repr__(self):
         return '<EclKwd: {0:9} Section "{1:9}" Parent: "{2}" Line_number: "{3}">\n'.format(self.name, self.section, self.parent, self.line_num)
